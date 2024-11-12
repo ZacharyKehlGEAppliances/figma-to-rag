@@ -160,16 +160,23 @@ poetry run pytest tests/test_converter.py
 #Contributing 🤝
 
 Fork the repository
+
 Create your feature branch (`git checkout -b feature/AmazingFeature`)
+
 Run tests and type checks (`poetry run pytest && poetry run mypy figma_to_rag`)
+
 Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+
 Push to the branch (`git push origin feature/AmazingFeature`)
+
 Open a Pull Request
 
 ## Support 💬
 
 📫 For bugs and feature requests, please open an issue
+
 💡 For questions and discussions, please use GitHub Discussions
+
 📖 Check out our Wiki for additional documentation
 
 ## Acknowledgments 🙏
