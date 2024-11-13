@@ -17,7 +17,7 @@ Convert Figma designs into RAG-optimized content for AI applications. This tool 
 
 ## Installation 🚀
 
-### Using pip
+### Using pip (TO_DO)
 
 ```bash
 pip install figma-to-rag
