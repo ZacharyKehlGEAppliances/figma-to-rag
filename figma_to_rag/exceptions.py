@@ -1,9 +1,9 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 
 class FigmaToRAGError(Exception):
     """Base exception for all figma-to-rag errors."""
     
-    def __init__(self, message: str, details: Optional[dict] = None):
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
         self.message = message
         self.details = details or {}
         super().__init__(self.message)
@@ -23,7 +23,7 @@ class FigmaAPIError(FigmaToRAGError):
         self,
         message: str,
         status_code: Optional[int] = None,
-        response_body: Optional[dict] = None
+        response_body: Optional[Dict] = None
     ):
         details = {
             "status_code": status_code,
@@ -129,6 +129,34 @@ class ConfigurationError(FigmaToRAGError):
         self.config_key = config_key
         self.invalid_value = invalid_value
 
+class ProcessingError(FigmaToRAGError):
+    """
+    Raised when there's an error processing the data through OpenAI or other processors.
+    
+    Examples:
+        * API rate limits
+        * Model errors
+        * Invalid responses
+        * Processing pipeline failures
+    """
+    
+    def __init__(
+        self,
+        message: str,
+        processor: Optional[str] = None,
+        element_id: Optional[str] = None,
+        raw_error: Optional[Any] = None
+    ):
+        details = {
+            "processor": processor,
+            "element_id": element_id,
+            "raw_error": str(raw_error) if raw_error else None
+        }
+        super().__init__(message, details)
+        self.processor = processor
+        self.element_id = element_id
+        self.raw_error = raw_error
+
 def handle_api_error(status_code: int, response_body: Optional[dict] = None) -> FigmaAPIError:
     """
     Helper function to create appropriate FigmaAPIError based on status code.
@@ -161,4 +189,27 @@ def handle_api_error(status_code: int, response_body: Optional[dict] = None) -> 
         message=message,
         status_code=status_code,
         response_body=response_body
+    )
+
+def handle_processing_error(
+    error: Exception,
+    processor: str,
+    element_id: Optional[str] = None
+) -> ProcessingError:
+    """
+    Helper function to create ProcessingError from other exceptions.
+    
+    Args:
+        error (Exception): Original exception
+        processor (str): Name of the processor where error occurred
+        element_id (Optional[str]): ID of the element being processed
+        
+    Returns:
+        ProcessingError: Wrapped error with context
+    """
+    return ProcessingError(
+        message=str(error),
+        processor=processor,
+        element_id=element_id,
+        raw_error=error
     )
