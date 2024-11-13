@@ -15,9 +15,137 @@ Convert Figma designs into RAG-optimized content for AI applications. This tool 
 - Progress tracking and detailed reports
 - Multiple output formats
 
+
+## Workflow Overview 🔄
+
+```mermaid
+flowchart LR
+    subgraph Input ["1. Input"]
+        F[Figma Design]
+    end
+    
+    subgraph Process ["2. Processing"]
+        C[Extract Content]
+        R[Convert to RAG]
+        O[OpenAI Enhancement]
+    end
+    
+    subgraph Output ["3. Output"]
+        D[Documentation]
+        J[JSONL Files]
+    end
+    
+    F --> C
+    C --> R
+    R --> O
+    O --> D
+    D --> J
+    
+    style F fill:#ffffff,stroke:#000000,stroke-width:4px
+    style C fill:#ffffff,stroke:#000000,stroke-width:2px,stroke-dasharray: 5 5
+    style R fill:#ffffff,stroke:#000000,stroke-width:2px,stroke-dasharray: 10 5
+    style O fill:#ffffff,stroke:#000000,stroke-width:2px,stroke-dasharray: 15 5
+    style D fill:#ffffff,stroke:#000000,stroke-width:2px,pattern:dots
+    style J fill:#ffffff,stroke:#000000,stroke-width:4px,pattern:grid
+```
+## System Architecture 🏗️
+
+```mermaid
+graph TB
+    subgraph Interface ["User Interface"]
+        CLI([Command Line Tool])
+    end
+    
+    subgraph Core ["Core Processing"]
+        direction LR
+        Conv[["Figma Converter"]]
+        Proc[["OpenAI Processor"]]
+    end
+    
+    subgraph External ["External Services"]
+        direction LR
+        FA[("Figma API")]
+        OA[("OpenAI API")]
+    end
+    
+    subgraph Storage ["Data Storage"]
+        Raw[("Raw Data")]
+        Processed[("Processed Data")]
+    end
+    
+    CLI --> Conv & Proc
+    Conv --> FA
+    Proc --> OA
+    FA --> Raw
+    OA --> Processed
+    
+    style CLI fill:#ffffff,stroke:#000000,stroke-width:4px
+    style Conv fill:#ffffff,stroke:#000000,stroke-width:2px,pattern:dots
+    style Proc fill:#ffffff,stroke:#000000,stroke-width:2px,pattern:grid
+    style FA fill:#ffffff,stroke:#000000,stroke-width:2px,stroke-dasharray: 5 5
+    style OA fill:#ffffff,stroke:#000000,stroke-width:2px,stroke-dasharray: 5 5
+    style Raw fill:#ffffff,stroke:#000000,stroke-width:2px,pattern:cross
+    style Processed fill:#ffffff,stroke:#000000,stroke-width:2px,pattern:cross
+```
+
+## Processing Steps 🔄
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as CLI
+    participant F as Figma API
+    participant O as OpenAI
+    participant S as Storage
+    
+    Note over U,S: 1️⃣ Content Extraction
+    U->>C: Run convert command
+    C->>F: Request file content
+    F-->>C: Return design data
+    C->>S: Save raw content
+    
+    Note over U,S: 2️⃣ Content Processing
+    U->>C: Run process command
+    C->>S: Load raw content
+    C->>O: Process content
+    O-->>C: Return enhanced docs
+    
+    Note over U,S: 3️⃣ Output Generation
+    C->>S: Save RAG documents
+```
+
+## Output Structure 📊
+
+```mermaid
+graph TD
+    subgraph "Output Directory Structure"
+        Root(("📁 output/"))
+        Data["📂 data/"]
+        Logs["📂 logs/"]
+        
+        Root --> Data
+        Root --> Logs
+        
+        Data --> |Raw Content| RC["📄 raw_content.jsonl"]
+        Data --> |Processed| PC["📄 processed_content.jsonl"]
+        Data --> |Statistics| ST["📄 stats.json"]
+        
+        Logs --> |Conversion| CL["📝 convert_logs.log"]
+        Logs --> |Processing| PL["📝 process_logs.log"]
+        Logs --> |Errors| EL["📝 error_logs.log"]
+    end
+    
+    style Root fill:#ffffff,stroke:#000000,stroke-width:4px
+    style Data fill:#ffffff,stroke:#000000,stroke-width:2px,pattern:dots
+    style Logs fill:#ffffff,stroke:#000000,stroke-width:2px,pattern:grid
+    style RC fill:#ffffff,stroke:#000000,stroke-width:2px
+    style PC fill:#ffffff,stroke:#000000,stroke-width:2px
+    style ST fill:#ffffff,stroke:#000000,stroke-width:2px
+```
+
 ## Installation 🚀
 
-### Using pip (TO_DO)
+### Using pip (TODO)
 
 ```bash
 pip install figma-to-rag
