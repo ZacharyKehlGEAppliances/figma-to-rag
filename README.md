@@ -1,187 +1,218 @@
-# figma-to-rag
-Convert Figma components into a format optimized for RAG (Retrieval-Augmented Generation) workflows. This tool helps bridge the gap between design systems and AI-assisted development by making your Figma components queryable through RAG.
+# figma-to-rag 🎨→📚
 
-
+Convert Figma designs into RAG-optimized content for AI applications. This tool helps bridge the gap between design systems and AI by making your Figma content queryable through RAG (Retrieval-Augmented Generation).
 
 ## Features ✨
 
-Extract component metadata, properties, and variants from Figma
-Convert components into RAG-optimized format with content and metadata fields
-Rich CLI with progress indicators
-Environment variable support
-Comprehensive error handling and logging
-Pydantic models for data validation
-Output in JSONL format for easy integration with RAG pipelines
+- Extract content from Figma files including:
+  - Text content and styles
+  - Component information
+  - Design hierarchies
+  - Style tokens
+- Convert to RAG-optimized format
+- Process content using OpenAI for enhanced documentation
+- Comprehensive error handling and logging
+- Progress tracking and detailed reports
+- Multiple output formats
 
 ## Installation 🚀
 
 ### Using pip
-```
+
+```bash
 pip install figma-to-rag
 ```
 
 ### Using Poetry (for development)
-```
+
+```bash
 git clone https://github.com/yourusername/figma-to-rag.git
 cd figma-to-rag
 poetry install
 ```
 
+## Setup 🔧
+
+1. Get your Figma access token:
+   - Log in to Figma
+   - Go to Settings → Account Settings
+   - Scroll to "Access tokens"
+   - Create a new token
+
+2. Get your OpenAI API key:
+   - Go to [OpenAI Platform](https://platform.openai.com)
+   - Create or use existing API key
+
+3. Set environment variables (optional):
+```bash
+export FIGMA_ACCESS_TOKEN='your_figma_token'
+export OPENAI_API_KEY='your_openai_key'
+```
+
 ## Usage 💻
 
-### Command Line Interface
+### Basic Workflow
 
-1. Set your Figma access token (either method)
-```
-# Option 1: Environment variable
-export FIGMA_ACCESS_TOKEN=your_token_here
-
-# Option 2: Pass directly to CLI
-figma-to-rag convert your-file-key --access-token your_token_here
-```
-1. Basic usage:
-```
-figma-to-rag convert your-file-key
+1. **Inspect a Figma file**:
+```bash
+figma-to-rag inspect your_file_key
 ```
 
-1. Specify output location:
+2. **Convert Figma content**:
+```bash
+figma-to-rag convert your_file_key --output-dir ./output
 ```
-figma-to-rag convert your-file-key -o output/components.jsonl
+
+3. **Process with OpenAI**:
+```bash
+figma-to-rag process ./output/data/your_file_key_raw.jsonl \
+    --model gpt-4 \
+    --output-dir ./output
 ```
 
-## Python API
+4. **Validate the processed content**:
+```bash
+figma-to-rag validate ./output/data/processed_your_file_key_raw.jsonl
 ```
-from figma_to_rag import FigmaRAGConverter
 
-# Initialize converter
-converter = FigmaRAGConverter(access_token="your_token_here")
+### Advanced Usage
 
-# Process entire file
-documents = converter.process_file(
-    file_key="your_file_key",
-    output_path="components.jsonl"
-)
+#### Custom OpenAI Processing
+```bash
+# Use specific model
+figma-to-rag process input.jsonl --model gpt-4o
 
-# Or process components individually
-components = converter.get_file_components("your_file_key")
-for component_data in components:
-    component = converter.parse_component(component_data)
-    rag_doc = converter.convert_to_rag_format(component)
+# Adjust batch size
+figma-to-rag process input.jsonl --batch-size 3
+
+# Increase retry attempts
+figma-to-rag process input.jsonl --retry 5
+```
+
+#### Detailed Analysis
+```bash
+# Get statistics about processed content
+figma-to-rag stats ./output/data/processed_content.jsonl -o ./output/stats.json
 ```
 
 ## Output Format 📄
-The tool generates a JSONL file where each line is a JSON object with the following structure:
-```
+
+The tool generates JSONL files with RAG-optimized content:
+
+```json
 {
-  "content": "Component: Button\nDescription: Primary action button component\nProperties: {\n  \"variant\": \"primary\",\n  \"size\": \"medium\",\n  \"disabled\": false\n}\nVariants: 6 variant(s)",
+  "content": "Detailed component description and documentation",
   "metadata": {
-    "type": "figma_component",
-    "component_key": "btn-123",
-    "component_id": "1:123",
-    "name": "Button",
-    "props": {
-      "variant": "primary",
-      "size": "medium",
-      "disabled": false
+    "element_type": "component/text/frame",
+    "title": "Element title",
+    "context": "Design hierarchy location",
+    "style_tokens": {
+      "font": "Inter",
+      "weight": 500,
+      "size": "16px"
     },
-    "variant_count": 6
+    "related_elements": [
+      "related-component-1",
+      "related-component-2"
+    ]
   }
 }
 ```
 
-## Integration Examples 🔄
-### LangChain
+## Error Handling 🚨
+
+The tool includes comprehensive error handling:
+- API rate limiting
+- Network issues
+- Processing failures
+- Validation errors
+
+Errors are logged to:
 ```
-from langchain.document_loaders import JSONLoader
-
-# Load documents
-loader = JSONLoader(
-    file_path="components.jsonl",
-    jq_schema='.content',
-    metadata_func=lambda x: x.get('metadata', {})
-)
-documents = loader.load()
-
-# Create vector store
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
-
-embeddings = OpenAIEmbeddings()
-vectorstore = Chroma.from_documents(documents, embeddings)
-```
-### LlamaIndex
-```
-from llama_index import SimpleDirectoryReader, VectorStoreIndex
-from llama_index.node_parser import SimpleNodeParser
-
-# Load and parse documents
-reader = SimpleDirectoryReader(input_files=["components.jsonl"])
-documents = reader.load_data()
-
-# Create index
-parser = SimpleNodeParser()
-nodes = parser.get_nodes_from_documents(documents)
-index = VectorStoreIndex(nodes)
+./output/logs/[command]_[timestamp].log
 ```
 
 ## Development 🛠️
-Setup
-```
+
+### Setup
+
+```bash
 # Clone repository
 git clone https://github.com/yourusername/figma-to-rag.git
 cd figma-to-rag
 
-# Install dependencies with Poetry
+# Install dependencies
 poetry install
 
 # Run tests
 poetry run pytest
 
-# Run type checks
-poetry run mypy figma_to_rag
-
-# Format code
-poetry run black figma_to_rag
-poetry run isort figma_to_rag
-```
-
-Running Tests
-```
-# Run all tests
-poetry run pytest
-
 # Run with coverage
 poetry run pytest --cov=figma_to_rag
-
-# Run specific test file
-poetry run pytest tests/test_converter.py
 ```
 
-#Contributing 🤝
+### Running Tests
 
-Fork the repository
+```bash
+# All tests
+poetry run pytest
 
-Create your feature branch (`git checkout -b feature/AmazingFeature`)
+# Specific test file
+poetry run pytest tests/test_converter.py
 
-Run tests and type checks (`poetry run pytest && poetry run mypy figma_to_rag`)
+# With coverage report
+poetry run pytest --cov=figma_to_rag --cov-report=html
+```
 
-Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+## Contributing 🤝
 
-Push to the branch (`git push origin feature/AmazingFeature`)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Run tests (`poetry run pytest`)
+4. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+5. Push to the branch (`git push origin feature/AmazingFeature`)
+6. Open a Pull Request
 
-Open a Pull Request
+## Troubleshooting 🔍
+
+### Common Issues
+
+1. **"No access token provided"**
+   ```bash
+   export FIGMA_ACCESS_TOKEN='your_token_here'
+   # or
+   figma-to-rag convert file_key --access-token your_token_here
+   ```
+
+2. **OpenAI API Issues**
+   ```bash
+   # Try with smaller batch size
+   figma-to-rag process input.jsonl --batch-size 3
+   
+   # Increase retry attempts
+   figma-to-rag process input.jsonl --retry 5
+   ```
+
+3. **"File not found"**
+   - Check if the file key is correct
+   - Ensure you have access to the Figma file
+   - Try the inspect command first:
+     ```bash
+     figma-to-rag inspect your_file_key
+     ```
+
+## License 📝
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support 💬
 
-📫 For bugs and feature requests, please open an issue
-
-💡 For questions and discussions, please use GitHub Discussions
-
-📖 Check out our Wiki for additional documentation
+- 📫 For bugs and feature requests, please [open an issue](https://github.com/yourusername/figma-to-rag/issues)
+- 💡 For questions and discussions, please use [GitHub Discussions](https://github.com/yourusername/figma-to-rag/discussions)
+- 📖 Check out our [Wiki](https://github.com/yourusername/figma-to-rag/wiki) for additional documentation
 
 ## Acknowledgments 🙏
 
-Figma API Documentation
-RAG (Retrieval-Augmented Generation) research papers
-The open-source community
-All contributors
+- Figma API Documentation
+- OpenAI API
+- The open-source community
