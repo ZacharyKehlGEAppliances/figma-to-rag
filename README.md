@@ -1,4 +1,4 @@
-# figma-to-rag 🎨→📚
+# figma-to-rag 🎨→📚 (work-in-progress!!)
 
 Convert Figma designs into RAG-optimized content for AI applications. This tool helps bridge the gap between design systems and AI by making your Figma content queryable through RAG (Retrieval-Augmented Generation).
 
